@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Крестики-Нолики</title>
+<style>
+  body {
+    font-family: sans-serif;
+    text-align: center;
+  }
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-gap: 5px;
+    margin: 20px auto;
+    width: 315px; /* Adjusted width for better centering */
+  }
+
+  .cell {
+    width: 100px;
+    height: 100px;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 60px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+  }
+
+  .cell img {
+    max-width: 80%;
+    max-height: 80%;
+  }
+
+  .score {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  #resetButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+  <h1><span style="color:rgb(255, 0, 0);">Крестики</span><h1><span style="color:rgb(0, 47, 255);">Нолики</span></h1>
+
+<div class="score">
+  <span style="color:blue"><b>Твой счет:</b><span id="playerScore"><b>0</b></span> <span style="color:rgb(255, 0, 0)"><b>Счет Бота:</b><span id="botScore"><b>0<b>
+</div>
+
+<div class="board" id="board">
+  <div class="cell" data-index="0"></div>
+  <div class="cell" data-index="1"></div>
+  <div class="cell" data-index="2"></div>
+  <div class="cell" data-index="3"></div>
+  <div class="cell" data-index="4"></div>
+  <div class="cell" data-index="5"></div>
+  <div class="cell" data-index="6"></div>
+  <div class="cell" data-index="7"></div>
+  <div class="cell" data-index="8"></div>
+</div>
+
+<button id="resetButton">Начать заново</button>
+
+<script>
+  const board = document.getElementById('board');
+  const cells = document.querySelectorAll('.cell');
+  const playerScoreDisplay = document.getElementById('playerScore');
+  const botScoreDisplay = document.getElementById('botScore');
+  const resetButton = document.getElementById('resetButton');
+
+  let currentPlayer = 'player';
+  let gameBoard = ['', '', '', '', '', '', '', '', ''];
+  let gameActive = true;
+  let playerScore = 0;
+  let botScore = 0;
+
+  const playerSymbol = '<img src="круг.png" alt="X">';
+  const botSymbol = '<img src="крестик.png" alt="O">';
+
+  const winningCombinations = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+    [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+    [0, 4, 8], [2, 4, 6]             // Diagonals
+  ];
+
+  function checkWin() {
+    for (let combination of winningCombinations) {
+      const [a, b, c] = combination;
+      if (gameBoard[a] && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c]) {
+        return gameBoard[a];
+      }
+    }
+    return null;
+  }
+
+  function checkTie() {
+    return !gameBoard.includes('');
+  }
+
+  function handleCellClick(event) {
+    const cell = event.target;
+    const index = cell.dataset.index;
+
+    if (gameBoard[index] === '' && gameActive) {
+      gameBoard[index] = 'player';
+      cell.innerHTML = playerSymbol;
+      cell.classList.add('player');
+
+      const win = checkWin();
+      if (win) {
+        gameActive = false;
+        playerScore++;
+        playerScoreDisplay.textContent = playerScore;
+        alert('Вы победили!');
+        return;
+      }
+
+      if (checkTie()) {
+        gameActive = false;
+        alert('Ничья!');
+        return;
+      }
+
+      currentPlayer = 'bot';
+      setTimeout(botMove, 500); // Delay bot's move for better UX
+    }
+  }
+
+  function botMove() {
+    if (!gameActive) return;
+
+    // Basic AI: Find the first empty cell
+    let bestMove = -1;
+    for (let i = 0; i < gameBoard.length; i++) {
+      if (gameBoard[i] === '') {
+        bestMove = i;
+        break;
+      }
+    }
+
+
+    // Smarter AI (Minimax - Basic blocking)
+    // This is a very simple minimax implementation, primarily for blocking.  A full minimax would be much more complex.
+    for (let i = 0; i < gameBoard.length; i++) {
+        if (gameBoard[i] === '') {
+            gameBoard[i] = 'bot'; // Try a bot move
+            if (checkWin() === 'bot') {
+                bestMove = i;
+                gameBoard[i] = ''; // Reset the test move
+                break;
+            }
+            gameBoard[i] = '';  // Reset the test move
+        }
+    }
+
+    if (bestMove === -1) { //  Still no winning move, look for a blocking move
+        for (let i = 0; i < gameBoard.length; i++) {
+            if (gameBoard[i] === '') {
+                gameBoard[i] = 'player';  // Try a player move
+                if (checkWin() === 'player') {
+                    bestMove = i;
+                    gameBoard[i] = '';  // Reset the test move
+                    break;
+                }
+                gameBoard[i] = ''; // Reset the test move
+            }
+        }
+    }
+
+
+    if (bestMove !== -1) {
+      gameBoard[bestMove] = 'bot';
+      cells[bestMove].innerHTML = botSymbol;
+      cells[bestMove].classList.add('bot');
+
+      const win = checkWin();
+      if (win) {
+        gameActive = false;
+        botScore++;
+        botScoreDisplay.textContent = botScore;
+        alert('Бот победил!');
+        return;
+      }
+
+      if (checkTie()) {
+        gameActive = false;
+        alert('Ничья!');
+        return;
+      }
+
+      currentPlayer = 'player';
+    } else {
+        // This should ideally never happen with the current basic AI, but just in case.
+        console.warn("No valid move found for the bot.  This shouldn't happen.");
+    }
+  }
+
+
+  function resetGame() {
+    gameBoard = ['', '', '', '', '', '', '', '', ''];
+    gameActive = true;
+    currentPlayer = 'player';
+    cells.forEach(cell => {
+      cell.innerHTML = '';
+      cell.classList.remove('player', 'bot');
+    });
+  }
+
+  cells.forEach(cell => {
+    cell.addEventListener('click', handleCellClick);
+  });
+
+  resetButton.addEventListener('click', resetGame);
+</script>
+
+</body>
+</html>
+
+

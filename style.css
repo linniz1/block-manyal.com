@@ -1,0 +1,76 @@
+body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+}
+
+#score {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+}
+
+#board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-gap: 5px;
+    margin-bottom: 20px;
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+    background-color: #eee;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+    cursor: pointer;
+    border: 1px solid #ccc;
+}
+
+.cell img {
+    max-width: 80%;
+    max-height: 80%;
+}
+
+#reset-button {
+    padding: 10px 20px;
+    font-size: 1.1em;
+    cursor: pointer;
+}
+.resetButton {
+    /* Базовые стили для кнопки */
+    background-color: #4CAF50; /* Зеленый цвет, пример */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.2s ease-in-out; /* Важная строка: плавный переход для всех свойств */
+  }
+  
+  .resetButton:hover,
+  .resetButton:focus {
+    /* Стили при наведении или фокусе */
+    transform: scale(0.95); /* Немного уменьшаем размер */
+    background-color: #3e8e41; /* Более темный зеленый цвет */
+  }
+  
+  .resetButton:active {
+    /* Стили при нажатии */
+    transform: scale(0.9); /* Еще немного уменьшаем */
+    background-color: #367534; /* Еще темнее */
+  }
+  
+  /* Дополнительные стили (необязательно, но может быть полезно) */
+  .resetButton:focus {
+    outline: none; /* Убирает стандартную обводку при фокусе, чтобы не мешала */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Добавляет тень при фокусе (опционально) */
+  }
+  
